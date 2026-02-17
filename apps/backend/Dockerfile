@@ -34,5 +34,5 @@ COPY --from=installer /app/apps/backend/package.json .
 COPY --from=installer /app/apps/backend/dist ./dist
 COPY --from=installer /app/node_modules ./node_modules
 
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "dist/main"]

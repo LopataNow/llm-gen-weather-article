@@ -1,10 +1,24 @@
 import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { GeminiService } from '../services/gemini.service';
 import { GenWeatherDto } from '../dtos/gen-weather.dto';
-import { WeatherPresenter } from 'src/presenters/weather.presenter';
-import { WeatherService } from 'src/services/weather.service';
+import { WeatherPresenter } from '../presenters/weather.presenter';
+import { WeatherService } from '../services/weather.service';
 
-function createWeatherKey({ latitude, longitude, style, date, language }: any): string {
+interface WeatherKeyParams {
+  latitude: number;
+  longitude: number;
+  style: string;
+  date: string;
+  language: string;
+}
+
+function createWeatherKey({
+  latitude,
+  longitude,
+  style,
+  date,
+  language,
+}: WeatherKeyParams): string {
   return `${language}-${latitude}-${longitude}-${style}-${date}`;
 }
 

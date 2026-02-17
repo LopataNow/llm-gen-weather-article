@@ -7,10 +7,11 @@ export interface WeatherArticle {
 }
 
 export function getArticle(style: string, date: Date) {
-  return axios.get<WeatherArticle>(process.env.SERVER_URL as string, {
+  const serverUrl = process.env.SERVER_URL || "http://localhost:3001";
+  return axios.get<WeatherArticle>(serverUrl, {
     params: {
       style,
-      date: date.toISOString().split('T')[0],
+      date: date.toISOString().split("T")[0],
     },
   });
 }

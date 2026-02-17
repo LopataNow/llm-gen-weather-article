@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsIn, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GenWeatherDto {
@@ -9,17 +10,19 @@ export class GenWeatherDto {
   @IsString()
   @IsOptional()
   @IsIn(['fantastic', 'tabloids'])
-  style: string;
+  style?: string;
 
   @IsNumber()
   @IsOptional()
-  latitude: number;
+  @Type(() => Number)
+  latitude?: number;
 
   @IsNumber()
   @IsOptional()
-  longitude: number;
+  @Type(() => Number)
+  longitude?: number;
 
   @IsString()
   @IsOptional()
-  date: string;
+  date?: string;
 }
