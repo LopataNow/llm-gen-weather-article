@@ -1,49 +1,33 @@
 # llm-gen-weather-article
 `llm-gen-weather-article` is a project designed to generate weather articles using AI. The project leverages machine learning models to analyze weather data and produce coherent and informative articles. This can be particularly useful for news agencies, bloggers, and anyone interested in automating the creation of weather-related content.
 
-## run local database
+## Quick Start (Monorepo)
 
-To run the database, follow these steps:
-
+### 1. Database
 Navigate to the local directory and run docker compose:
 ```sh
     cd llm-gen-local
     docker compose up -d
 ```
 
-## run backend
-
-To run the backend, follow these steps:
-
-Navigate to the backend directory, copy the environment, install dependencies: and run app:
+### 2. Install Dependencies
+Install dependencies for all apps from the root:
 ```sh
-    cd backend-nest
-    #copy for windows
-    copy .env.local .env
-    #copy for linux
-    cp .env.local .env
-    #add Gemini key to .env
     npm install
-    npm run start:dev
-```
-This will start the frontend application on `http://localhost:3000`.
-
-## Run Frontend
-
-To run the frontend, follow these steps:
-
-Navigate to the frontend directory and install dependencies:
-```sh
-    cd frontend-next
-    #copy for windows
-    copy .env.local .env
-    #copy for linux
-    cp .env.local .env
-    npm install
-    npm start
 ```
 
-This will start the frontend application on `http://localhost:3001`.
+### 3. Configure Environment
+1.  **Backend**: Copy `.env.local` to `.env` in `apps/backend` and add your `GEMINI_API_KEY`.
+2.  **Frontend**: Copy `.env.local` to `.env` in `apps/frontend`.
+
+### 4. Run Applications
+Start both backend and frontend concurrently:
+```sh
+    npm run dev
+```
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:3001`
 
 ## Features
 
