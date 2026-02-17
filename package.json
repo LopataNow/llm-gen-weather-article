@@ -11,7 +11,9 @@
         "dev": "turbo run dev",
         "lint": "turbo run lint",
         "test": "turbo run test",
-        "format": "prettier --write \"**/*.{ts,tsx,md}\""
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "docker:build:backend": "docker build -f apps/backend/Dockerfile -t backend .",
+        "docker:build:frontend": "docker build -f apps/frontend/Dockerfile -t frontend ."
     },
     "devDependencies": {
         "turbo": "latest",
