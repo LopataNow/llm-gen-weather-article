@@ -35,7 +35,7 @@ const prompt = (style: string, language: string, weatherData: string, city: stri
   `Write an article about the weather in ${city} in the ${style} style. Language: ${language}. Use the following weather data: ${weatherData}.`;
 
 @Injectable()
-export class GerminiService {
+export class GeminiService {
   async getWeatherArticle(
     language: string,
     style: string,
@@ -46,7 +46,7 @@ export class GerminiService {
     const city = await this.getCityByCoordinates(latitude, longitude);
     const weatherData = await this.getWeatherData(date, latitude, longitude);
 
-    const genAI = new GoogleGenerativeAI(process.env.GERMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       generationConfig: {

@@ -1,5 +1,5 @@
-# llm-weather-article
-`ai-gen-weathechitekurer` is a project designed to generate weather articles using AI. The project leverages machine learning models to analyze weather data and produce coherent and informative articles. This can be particularly useful for news agencies, bloggers, and anyone interested in automating the creation of weather-related content.
+# llm-gen-weather-article
+`llm-gen-weather-article` is a project designed to generate weather articles using AI. The project leverages machine learning models to analyze weather data and produce coherent and informative articles. This can be particularly useful for news agencies, bloggers, and anyone interested in automating the creation of weather-related content.
 
 ## run local database
 
@@ -22,7 +22,7 @@ Navigate to the backend directory, copy the environment, install dependencies: a
     copy .env.local .env
     #copy for linux
     cp .env.local .env
-    #add germini key to .env
+    #add Gemini key to .env
     npm install
     npm run start:dev
 ```

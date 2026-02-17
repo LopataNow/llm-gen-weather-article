@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GenWeatherDtoController } from './controllers/gen-weather.controller';
-import { GerminiService } from './services/germini.service';
+import { GeminiService } from './services/gemini.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -28,6 +28,6 @@ import { WeatherService } from './services/weather.service';
     ]),
   ],
   controllers: [GenWeatherDtoController],
-  providers: [GerminiService, WeatherService],
+  providers: [GeminiService, WeatherService],
 })
 export class AppModule {}

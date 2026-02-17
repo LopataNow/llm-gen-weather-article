@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
-import { GerminiService } from '../services/germini.service';
+import { GeminiService } from '../services/gemini.service';
 import { GenWeatherDto } from '../dtos/gen-weather.dto';
 import { WeatherPresenter } from 'src/presenters/weather.presenter';
 import { WeatherService } from 'src/services/weather.service';
@@ -12,12 +12,12 @@ function createWeatherKey({ latitude, longitude, style, date, language }: any): 
 export class GenWeatherDtoController {
   constructor(
     private readonly weatherService: WeatherService,
-    private readonly germiniService: GerminiService,
+    private readonly geminiService: GeminiService,
   ) {}
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getWeatherArtice(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
+  async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
     const {
       language = 'en',
       style = 'fantastic',
@@ -34,7 +34,7 @@ export class GenWeatherDtoController {
       return weather;
     }
 
-    const generated = await this.germiniService.getWeatherArticle(
+    const generated = await this.geminiService.getWeatherArticle(
       language,
       style,
       date,

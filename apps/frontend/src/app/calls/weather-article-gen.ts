@@ -1,16 +1,16 @@
 import axios from "axios";
 
-export interface WeatherArticel {
+export interface WeatherArticle {
   headline: string;
   subtitle: string;
   body: string;
 }
 
-export function getArticle(style: string, data: Date) {
-  return axios.get<WeatherArticel>(process.env.SERVER_URL as string, {
+export function getArticle(style: string, date: Date) {
+  return axios.get<WeatherArticle>(process.env.SERVER_URL as string, {
     params: {
       style,
-      data,
+      date: date.toISOString().split('T')[0],
     },
   });
 }
