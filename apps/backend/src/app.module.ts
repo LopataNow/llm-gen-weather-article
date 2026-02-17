@@ -15,15 +15,17 @@ import { WeatherService } from './services/weather.service';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB')
+        uri: configService.get<string>('MONGODB'),
       }),
       inject: [ConfigService],
     }),
     MongooseModule.forFeature([{ name: Weather.name, schema: WeatherSchema }]),
-    ThrottlerModule.forRoot([{
-      ttl: 800,
-      limit: 2,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 800,
+        limit: 2,
+      },
+    ]),
   ],
   controllers: [GenWeatherDtoController],
   providers: [GerminiService, WeatherService],
