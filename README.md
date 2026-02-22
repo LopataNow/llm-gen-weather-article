@@ -4,9 +4,8 @@
 ## Quick Start (Monorepo)
 
 ### 1. Database
-Navigate to the local directory and run docker compose:
+Run docker compose from the root directory:
 ```sh
-    cd llm-gen-local
     docker compose up -d
 ```
 
