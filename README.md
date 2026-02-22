@@ -11,23 +11,30 @@
 ## Quick Start (Monorepo)
 
 ### 1. Database
+
 Run docker compose from the root directory:
+
 ```sh
     docker compose up -d
 ```
 
 ### 2. Install Dependencies
+
 Install dependencies for all apps from the root:
+
 ```sh
     npm install
 ```
 
 ### 3. Configure Environment
+
 1.  **Backend**: Copy `.env.local` to `.env` in `apps/backend` and add your `GEMINI_API_KEY`.
 2.  **Frontend**: Copy `.env.local` to `.env` in `apps/frontend`.
 
 ### 4. Run Applications
+
 Start both backend and frontend concurrently:
+
 ```sh
     npm run dev
 ```
@@ -37,6 +44,7 @@ Start both backend and frontend concurrently:
 - **Swagger Documentation**: `http://localhost:3001/api`
 
 ### 5. Accessing API Documentation
+
 Once the backend is running, you can access the interactive OpenAPI (Swagger) documentation to explore and test the endpoints directly from your browser:
 👉 [Swagger UI - http://localhost:3001/api](http://localhost:3001/api)
 
