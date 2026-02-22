@@ -2,13 +2,24 @@ import { Module } from '@nestjs/common';
 import { GenWeatherDtoController } from './controllers/gen-weather.controller';
 import { GeminiService } from './services/gemini.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LoggerModule } from 'nestjs-pino';
 import { Weather, WeatherSchema } from './schemas/weather.schema';
 import { WeatherService } from './services/weather.service';
+import { AllExceptionsFilter } from './filters/http-exception.filter';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty', options: { colorize: true } }
+            : undefined,
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -28,6 +39,17 @@ import { WeatherService } from './services/weather.service';
     ]),
   ],
   controllers: [GenWeatherDtoController],
-  providers: [GeminiService, WeatherService],
+  providers: [
+    GeminiService,
+    WeatherService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {}
