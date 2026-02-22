@@ -1,4 +1,5 @@
 import { Controller, Get, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GeminiService } from '../services/gemini.service';
 import { GenWeatherDto } from '../dtos/gen-weather.dto';
 import { WeatherPresenter } from '../presenters/weather.presenter';
@@ -22,6 +23,7 @@ function createWeatherKey({
   return `${language}-${latitude}-${longitude}-${style}-${date}`;
 }
 
+@ApiTags('Weather Articles')
 @Controller()
 export class GenWeatherDtoController {
   constructor(
@@ -30,6 +32,8 @@ export class GenWeatherDtoController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Generate or retrieve an AI weather article' })
+  @ApiResponse({ status: 200, description: 'Successful generation or retrieval of the article.' })
   @UsePipes(new ValidationPipe({ transform: true }))
   async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
     const {
