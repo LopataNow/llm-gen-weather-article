@@ -1,8 +1,8 @@
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 
-const schema = {
+const schema: Schema = {
   description: 'Weather article schema',
   type: SchemaType.OBJECT,
   properties: {
@@ -48,7 +48,7 @@ export class GeminiService {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3-flash-preview',
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: schema,
@@ -61,7 +61,11 @@ export class GeminiService {
     return JSON.parse(result.response.text()) as WeatherArticleResponse;
   }
 
-  private async getWeatherData(date: string, latitude: number, longitude: number): Promise<any> {
+  private async getWeatherData(
+    date: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<Record<string, unknown>> {
     const result = await axios.get(process.env.WEATHER_API_URL, {
       params: {
         latitude: latitude,
