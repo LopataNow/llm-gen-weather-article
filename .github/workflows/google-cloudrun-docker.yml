@@ -4,12 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
-    branches:
-        - main
 
 env:
   PROJECT_ID: 'github-lab-442719'
@@ -23,7 +18,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend-nest
+        working-directory: ./apps/backend
 
     permissions:
       contents: 'read'
@@ -57,12 +52,16 @@ jobs:
           docker push "${DOCKER_TAG}"
 
       - name: Deploy to Google Cloud Run
+        id: deploy
         run: |
           gcloud run deploy ${{ env.SERVICE }} \
             --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --platform managed \
             --region ${{ env.REGION }} \
             --allow-unauthenticated
+            
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
+          echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
         # END - Docker auth and build
 
       - name: 'Show output'
