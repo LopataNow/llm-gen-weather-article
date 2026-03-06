@@ -1,16 +1,30 @@
 import axios from "axios";
 
-export interface WeatherArticle {
-  headline: string;
-  subtitle: string;
-  body: string;
+export interface WeatherArticleSections {
+  summary: string;
+  morning: string;
+  afternoon: string;
+  tip: string;
 }
 
-export function getArticle(style: string, date: Date) {
+export interface WeatherResponse {
+  _id: string; // "sk-slovensko-2026-03-06"
+  headline: string;
+  subtitle: string;
+  sections: WeatherArticleSections;
+  tempMax?: number;
+  tempMin?: number;
+  precipitation?: number;
+  windSpeed?: number;
+  windDir?: number;
+  weatherCode?: number;
+}
+
+export function getArticle(region: string, date: Date) {
   const serverUrl = process.env.SERVER_URL || "http://localhost:3001";
-  return axios.get<WeatherArticle>(serverUrl, {
+  return axios.get<WeatherResponse>(serverUrl, {
     params: {
-      style,
+      region,
       date: date.toISOString().split("T")[0],
     },
   });

@@ -23,7 +23,7 @@ export class GenWeatherDtoController {
   async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
     const { region = 'slovensko', date = new Date().toISOString().split('T')[0] } = params;
 
-    const weatherKey = `sk-${region}-${date}`;
+    const weatherKey = `sk-v2-${region}-${date}`;
 
     // 1. Try to find forecast in database (cache)
     const cachedWeather = await this.weatherService.getWeather(weatherKey);
