@@ -11,8 +11,18 @@ export class WeatherPresenter {
   subtitle: string;
 
   @ApiProperty({
-    example: 'Today in Bratislava, the weather is expected to be...',
-    description: 'Full generated article text',
+    example: {
+      summary: 'Dnes bude slnečno.',
+      morning: 'Chladno, ale jasno.',
+      afternoon: 'Pohodových 20°C.',
+      tip: 'Nezabudnite slnečné okuliare.',
+    },
+    description: 'Weather article split into logical sections',
   })
-  body: string;
+  sections: {
+    summary: string;
+    morning: string;
+    afternoon: string;
+    tip: string;
+  };
 }
