@@ -66,11 +66,7 @@ export default async function Home(props: {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-hidden p-4 font-sans text-slate-100 selection:bg-teal-500/30">
-      {/* Decorative Blur Orbs */}
-      <div className="pointer-events-none absolute left-[-10%] top-[-10%] h-96 w-96 rounded-full bg-blue-500/30 opacity-60 mix-blend-screen blur-[100px]"></div>
-      <div className="pointer-events-none absolute bottom-[-10%] right-[-10%] h-[30rem] w-[30rem] rounded-full bg-teal-400/20 opacity-60 mix-blend-screen blur-[120px]"></div>
-
+    <main className="relative min-h-screen p-4 font-sans text-slate-100 selection:bg-teal-500/30">
       <div className="container relative z-10 mx-auto max-w-5xl pb-20 pt-10">
         {/* Header & Navigation */}
         <header className="mb-8 flex flex-col items-center justify-between gap-6 md:flex-row">
