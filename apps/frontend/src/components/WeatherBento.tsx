@@ -46,58 +46,41 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
         variants={itemVariants}
         className="group relative row-span-2 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl transition-all hover:bg-white/[0.07] md:col-span-2 md:p-10 lg:col-span-3"
       >
-        <div className="pointer-events-none absolute right-0 top-0 p-8 opacity-10">
-          <Sun size={120} strokeWidth={1} />
+        <div className="pointer-events-none absolute right-0 top-0 p-8 opacity-[0.03]">
+          <Sun size={180} strokeWidth={1} />
         </div>
 
         <div className="relative z-10">
-          <span className="mb-6 inline-block rounded-full border border-teal-500/30 bg-teal-500/20 px-4 py-1.5 text-sm font-semibold tracking-wide text-teal-300">
-            Dnešný Príbeh
-          </span>
-
-          <h2 className="mb-3 text-3xl font-bold tracking-tight text-white md:text-4xl">
+          <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
             {data.headline}
           </h2>
-          <p className="mb-10 max-w-2xl text-xl font-medium leading-relaxed text-white/70">
+          <p className="mb-8 max-w-2xl border-b border-white/10 pb-6 text-lg font-medium leading-relaxed text-teal-100/70">
             {data.subtitle}
           </p>
 
-          <div className="space-y-8">
-            <div className="flex items-start gap-4">
-              <div className="mt-1 rounded-2xl border border-indigo-500/30 bg-indigo-500/20 p-2">
-                <Sunrise className="h-6 w-6 text-indigo-300" />
-              </div>
-              <div>
-                <h3 className="mb-2 text-lg font-semibold text-white">
-                  Ráno a doobedie
-                </h3>
-                <p className="text-base leading-relaxed text-white/70">
-                  {data.sections.morning}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="mt-1 rounded-2xl border border-orange-500/30 bg-orange-500/20 p-2">
-                <Sunset className="h-6 w-6 text-orange-300" />
-              </div>
-              <div>
-                <h3 className="mb-2 text-lg font-semibold text-white">
-                  Poobedie a večer
-                </h3>
-                <p className="text-base leading-relaxed text-white/70">
-                  {data.sections.afternoon}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-2xl border-l-4 border-yellow-500 bg-gradient-to-r from-yellow-500/10 to-transparent p-6">
-              <h3 className="mb-2 flex items-center gap-2 text-base text-sm font-bold uppercase tracking-wider text-yellow-400">
-                <span>💡</span> Tip na dnes
+          <div className="space-y-6">
+            <div className="flex flex-col gap-2">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-indigo-200">
+                <Sunrise className="h-5 w-5 opacity-70" />
+                Dopoludnia
               </h3>
-              <p className="font-medium italic text-white/80">
-                {data.sections.tip}
+              <p className="text-base leading-relaxed text-white/80">
+                {data.sections.morning}
               </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-orange-200">
+                <Sunset className="h-5 w-5 opacity-70" />
+                Popoludní a Večer
+              </h3>
+              <p className="text-base leading-relaxed text-white/80">
+                {data.sections.afternoon}
+              </p>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-white/5 bg-white/5 p-5 italic text-white/90 shadow-inner">
+              <p>💡 {data.sections.tip}</p>
             </div>
           </div>
         </div>

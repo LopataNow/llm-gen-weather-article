@@ -1,7 +1,9 @@
+import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
 
 import { WeatherBento } from "@/components/WeatherBento";
+import { WeeklyForecast } from "@/components/WeeklyForecast";
 
 import { getArticle } from "./calls/weather-article-gen";
 
@@ -16,15 +18,20 @@ const getArticleCache = unstable_cache(
 export default async function Home(props: {
   searchParams?: Promise<{
     region?: string;
+    date?: string;
   }>;
 }) {
   const searchParams = await props.searchParams;
   const region = searchParams?.region || "slovensko";
+  const dateStr = searchParams?.date || new Date().toISOString().split("T")[0];
+  const dateObj = new Date(dateStr);
+  const todayStr = new Date().toISOString().split("T")[0];
+  const isNotToday = dateStr !== todayStr;
 
   // Handling loading errors gracefully
   let weatherData = null;
   try {
-    weatherData = await getArticleCache(region, new Date());
+    weatherData = await getArticleCache(region, dateObj);
   } catch (error) {
     console.error("Failed to fetch weather data:", error);
   }
@@ -36,6 +43,14 @@ export default async function Home(props: {
     { id: "vychod", name: "Východ" },
   ];
 
+  // Helper arrays for the "Records" cards
+  const yesterdayStr = new Date(Date.now() - 86400000)
+    .toISOString()
+    .split("T")[0];
+  const dayBeforeYesterdayStr = new Date(Date.now() - 86400000 * 2)
+    .toISOString()
+    .split("T")[0];
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 p-4 font-sans text-slate-100 selection:bg-teal-500/30">
       {/* Decorative Blur Orbs */}
@@ -44,7 +59,7 @@ export default async function Home(props: {
 
       <div className="container relative z-10 mx-auto max-w-5xl pb-20 pt-10">
         {/* Header & Navigation */}
-        <header className="mb-12 flex flex-col items-center justify-between gap-6 md:flex-row">
+        <header className="mb-8 flex flex-col items-center justify-between gap-6 md:flex-row">
           <div>
             <h1 className="bg-gradient-to-r from-white to-white/60 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent md:text-5xl">
               AI Počasie
@@ -60,12 +75,12 @@ export default async function Home(props: {
               return (
                 <Link
                   key={r.id}
-                  href={`/?region=${r.id}`}
-                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
+                  href={`/? region = ${r.id}${isNotToday ? `&date=${dateStr}` : ""} `}
+                  className={`- xl px - 5 py - 2.5 text - sm font - semibold - all duration - 300 rounded transition ${
                     isActive
                       ? "bg-white/20 text-white shadow-sm ring-1 ring-white/30"
                       : "text-slate-400 hover:bg-white/10 hover:text-white"
-                  }`}
+                  } `}
                 >
                   {r.name}
                 </Link>
@@ -74,16 +89,82 @@ export default async function Home(props: {
           </nav>
         </header>
 
+        {/* Back to Today Banner */}
+        {isNotToday && (
+          <div className="mb-10 flex flex-col items-center justify-between rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-6 py-4 shadow-lg backdrop-blur-md sm:flex-row">
+            <div className="flex items-center gap-3 text-indigo-200">
+              <Clock className="h-5 w-5" />
+              <span>
+                Prezeráte si historický archív z{" "}
+                <strong>{dateObj.toLocaleDateString("sk-SK")}</strong>
+              </span>
+            </div>
+            <Link
+              href={`/?region=${region}`}
+              className="mt-4 flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-indigo-600 sm:mt-0"
+            >
+              <span>Vrátiť sa na dnešok</span>
+              <ArrowLeft className="h-4 w-4 rotate-180" />
+            </Link>
+          </div>
+        )}
+
         {/* Content Area */}
         {weatherData ? (
           <WeatherBento data={weatherData} />
         ) : (
           <div className="flex h-64 items-center justify-center rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md">
             <p className="text-slate-400">
-              Predpoveď pre tento región momentálne nie je k dispozícii.
+              Príbeh počasia pre tento deň nebol vygenerovaný.
             </p>
           </div>
         )}
+
+        {/* Weekly Forecast Table */}
+        <WeeklyForecast region={region} />
+
+        {/* History Records Cards */}
+        <div className="mt-12">
+          <h3 className="mb-6 flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
+            <CalendarDays className="h-6 w-6 text-indigo-400" />
+            Záznamy článkov
+          </h3>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Link
+              href={`/?region=${region}&date=${yesterdayStr}`}
+              className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
+            >
+              <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
+                Včera
+              </span>
+              <h4 className="mb-2 text-xl font-bold text-white">
+                {new Date(Date.now() - 86400000).toLocaleDateString("sk-SK")}
+              </h4>
+              <p className="text-sm text-slate-400 group-hover:text-slate-300">
+                Kliknutím otvoríte archívny článok počasia ranných i poobedných
+                reálií pre tento deň.
+              </p>
+            </Link>
+
+            <Link
+              href={`/?region=${region}&date=${dayBeforeYesterdayStr}`}
+              className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
+            >
+              <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
+                Predvčerom
+              </span>
+              <h4 className="mb-2 text-xl font-bold text-white">
+                {new Date(Date.now() - 86400000 * 2).toLocaleDateString(
+                  "sk-SK",
+                )}
+              </h4>
+              <p className="text-sm text-slate-400 group-hover:text-slate-300">
+                Historické AI zhrnutie zo staršieho predvčerajšieho dňa pre Váš
+                región.
+              </p>
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );
