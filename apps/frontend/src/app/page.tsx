@@ -1,8 +1,9 @@
-import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { unstable_cache } from "next/cache";
-import Link from "next/link";
 import { Suspense } from "react";
 
+import { HistoricalBanner } from "@/components/HistoricalBanner";
+import { HistoryArchiveList } from "@/components/HistoryArchiveList";
+import { RegionNavigation } from "@/components/RegionNavigation";
 import { WeatherBento } from "@/components/WeatherBento";
 import { WeatherSkeleton } from "@/components/WeatherSkeleton";
 import { WeeklyForecast } from "@/components/WeeklyForecast";
@@ -58,13 +59,6 @@ export default async function Home(props: {
   const todayStr = new Date().toISOString().split("T")[0];
   const isNotToday = dateStr !== todayStr;
 
-  const regions = [
-    { id: "slovensko", name: "Slovensko" },
-    { id: "zapad", name: "Západ" },
-    { id: "sever", name: "Sever" },
-    { id: "vychod", name: "Východ" },
-  ];
-
   return (
     <main className="relative min-h-screen p-4 font-sans text-slate-100 selection:bg-teal-500/30">
       <div className="container relative z-10 mx-auto max-w-5xl pb-20 pt-10">
@@ -79,45 +73,15 @@ export default async function Home(props: {
             </p>
           </div>
 
-          <nav className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1 shadow-xl backdrop-blur-md">
-            {regions.map((r) => {
-              const isActive = region === r.id;
-              return (
-                <Link
-                  key={r.id}
-                  href={`/?region=${r.id}${isNotToday ? `&date=${dateStr}` : ""}`}
-                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                    isActive
-                      ? "bg-white/20 text-white shadow-sm ring-1 ring-white/30"
-                      : "text-slate-400 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {r.name}
-                </Link>
-              );
-            })}
-          </nav>
+          <RegionNavigation
+            currentRegion={region}
+            dateStr={dateStr}
+            isNotToday={isNotToday}
+          />
         </header>
 
         {/* Back to Today Banner */}
-        {isNotToday && (
-          <div className="mb-10 flex flex-col items-center justify-between rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-6 py-4 shadow-lg backdrop-blur-md sm:flex-row">
-            <div className="flex items-center gap-3 text-indigo-200">
-              <Clock className="h-5 w-5" />
-              <span>
-                Prezeráte si historický archív z{" "}
-                <strong>{dateObj.toLocaleDateString("sk-SK")}</strong>
-              </span>
-            </div>
-            <Link
-              href={`/?region=${region}`}
-              className="mt-4 flex items-center gap-2 rounded-xl bg-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-indigo-600 sm:mt-0"
-            >
-              <span>Vrátiť sa na dnešok</span>
-              <ArrowLeft className="h-4 w-4 rotate-180" />
-            </Link>
-          </div>
-        )}
+        {isNotToday && <HistoricalBanner dateObj={dateObj} region={region} />}
 
         {/* Content Area with Suspense Skeleton */}
         <Suspense fallback={<WeatherSkeleton />}>
@@ -128,27 +92,7 @@ export default async function Home(props: {
         <WeeklyForecast region={region} />
 
         {/* History Records Simple List */}
-        <div className="mt-12">
-          <h3 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-white">
-            <CalendarDays className="h-5 w-5 text-indigo-400" />
-            Archív predpovedí
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {[...Array(7)].map((_, i) => {
-              const d = new Date(Date.now() - 86400000 * (i + 1));
-              const dStr = d.toISOString().split("T")[0];
-              return (
-                <Link
-                  key={dStr}
-                  href={`/?region=${region}&date=${dStr}`}
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/20 hover:text-white"
-                >
-                  {d.toLocaleDateString("sk-SK")}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+        <HistoryArchiveList region={region} />
       </div>
     </main>
   );
