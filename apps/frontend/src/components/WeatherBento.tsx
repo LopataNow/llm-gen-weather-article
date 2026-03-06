@@ -44,7 +44,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
       */}
       <motion.div
         variants={itemVariants}
-        className="group relative row-span-2 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl transition-all hover:bg-white/[0.07] md:col-span-2 md:p-10 lg:col-span-3"
+        className="group relative row-span-2 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-5 shadow-2xl backdrop-blur-xl transition-all hover:bg-white/[0.07] sm:p-8 md:col-span-2 md:p-10 lg:col-span-3"
       >
         <div className="pointer-events-none absolute right-0 top-0 p-8 opacity-[0.03]">
           <Sun size={180} strokeWidth={1} />

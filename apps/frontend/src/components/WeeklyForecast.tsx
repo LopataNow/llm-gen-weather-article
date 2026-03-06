@@ -88,8 +88,8 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
   }));
 
   return (
-    <div className="mt-12 rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl md:p-8">
-      <h3 className="mb-6 text-2xl font-bold tracking-tight text-white">
+    <div className="mt-12 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur-xl sm:p-6 md:p-8">
+      <h3 className="mb-4 text-xl font-bold tracking-tight text-white sm:mb-6 sm:text-2xl">
         Predpoveď na ďalšie dni
       </h3>
 
@@ -140,7 +140,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
                     <td className="py-4 text-right align-middle text-lg font-medium text-white/60">
                       {day.minTemp}°
                     </td>
-                    <td className="py-4 text-right align-middle text-sm font-medium text-blue-200/80">
+                    <td className="py-2 pr-2 text-right align-middle text-sm font-medium text-blue-200/80 sm:py-4 sm:pr-0 sm:text-base">
                       {day.precip > 0 ? `${day.precip} mm` : "-"}
                     </td>
                   </tr>
