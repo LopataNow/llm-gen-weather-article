@@ -59,19 +59,22 @@ export interface WeatherArticleResponse {
   sections: WeatherArticleSections;
 }
 
-const generateSlovakWeatherPrompt = (
+const generateWeatherPrompt = (
   regionName: string,
   weatherData: Record<string, unknown>,
+  targetLanguage: string = 'Slovak',
 ): string => {
-  return `Správaj sa ako moderný a empatický meteorológ pre Slovensko. Tvojou úlohou je napísať krátky, pútavý a minimalistický ranný report o počasí pre región "${regionName}" na základe nasledujúcich dát z Open-Meteo.
-Dáta získané z API: ${JSON.stringify(weatherData)}
+  return `
+  Act as a modern and empathetic meteorologist. Your task is to write a short, engaging, and minimalist morning weather report for the region "${regionName}" based on the following data from Open-Meteo.
+  Data retrieved from API: ${JSON.stringify(weatherData)}
 
-Pravidlá:
-1. Nepíš nudné zoznamy a tabuľkové fakty. Neopakuj presné čísla ak to nie je extrém.
-2. Rozdeľ text do nasledujúcich sekcií podľa schémy: "summary" (krátke zhrnutie 1 veta), "morning" (ranný a doobedný výhľad), "afternoon" (obed zadnejšie popoludnie, na ceste domov z práce) a "tip" (trefná rada alebo varovanie na záver).
-3. Zameraj sa na to najdôležitejšie pre bežného človeka (ako sa obliecť, zrážky z hourly predpovede atď.).
-4. Jazyk je slovenský, štýl textu je moderný a empatický.
-5. Vráť odpoveď výlučne ako platný JSON podľa definovanej schémy!`;
+  Rules:
+  1. Do not write boring lists or tabular facts. Do not repeat exact numbers unless they are extreme.
+  2. Divide the text into the following sections according to the schema: "summary" (short 1-sentence summary), "morning" (morning and early afternoon outlook), "afternoon" (late afternoon, commuting home from work), and "tip" (a catchy advice or warning at the end).
+  3. Focus on what is most important for a regular person (how to dress, precipitation from the hourly forecast, etc.).
+  4. The output language MUST BE ${targetLanguage}. The tone of the text should be modern and empathetic.
+  5. Return the response exclusively as a valid JSON according to the defined schema!
+`.trim();
 };
 
 @Injectable()
@@ -91,7 +94,7 @@ export class GeminiService {
       },
     });
 
-    const finalPrompt = generateSlovakWeatherPrompt(regionName, weatherData);
+    const finalPrompt = generateWeatherPrompt(regionName, weatherData);
     this.logger.debug(`Calling Gemini API for region: ${regionName}`);
 
     const result = await model.generateContent(finalPrompt);
