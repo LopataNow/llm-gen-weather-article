@@ -15,8 +15,7 @@ import { WeatherResponse } from "@/app/calls/weather-article-gen";
 import { WeatherBackground } from "./WeatherBackground";
 
 export function WeatherBento({ data }: { data: WeatherResponse }) {
-  // Animácie pre vstup elementov zaradom
-  const containerVariants = {
+  const containerAnimationVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -37,15 +36,12 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
     <>
       <WeatherBackground code={data.weatherCode} />
       <motion.div
-        variants={containerVariants}
+        variants={containerAnimationVariants}
         initial="hidden"
         animate="show"
         className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6"
       >
-        {/* 
-        HLAVNÁ KARTA - AI STORY
-        Zaberá celú vrchnú šírku (col-span-full) pre dominanciu v UI
-      */}
+        {/* MAIN CARD - AI STORY */}
         <motion.div
           variants={itemVariants}
           className="group relative overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-2xl transition-all hover:bg-white/15 sm:p-8 md:col-span-full md:p-10"
@@ -90,9 +86,8 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
           </div>
         </motion.div>
 
-        {/* MENŠIE KARTY (Dáta Open-Meteo) */}
+        {/* DATA CARDS (Open-Meteo) */}
 
-        {/* Karta - Teplota */}
         <motion.div
           variants={itemVariants}
           className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10"
@@ -119,7 +114,6 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
           </div>
         </motion.div>
 
-        {/* Karta - Vietor */}
         <motion.div
           variants={itemVariants}
           className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10"
@@ -149,7 +143,6 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
           </div>
         </motion.div>
 
-        {/* Karta - Zrážky */}
         <motion.div
           variants={itemVariants}
           className="col-span-1 flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10 md:col-span-3 lg:col-span-1"

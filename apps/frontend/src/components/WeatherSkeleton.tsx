@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function WeatherSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-      {/* Hlavný článok Skeleton */}
+      {/* Main Article Skeleton */}
       <div className="group relative row-span-2 overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/5 p-5 shadow-2xl backdrop-blur-sm sm:p-8 md:col-span-2 md:p-10 lg:col-span-3">
         <div className="relative z-10 flex h-full flex-col justify-between">
           <div>
@@ -27,7 +27,7 @@ export function WeatherSkeleton() {
         </div>
       </div>
 
-      {/* Vedľajšie widgety Skeleton (Teplota, Vietor...) */}
+      {/* Secondary widgets Skeleton (Temp, Wind...) */}
       <div className="flex h-48 flex-col justify-between rounded-[2rem] border border-white/5 bg-white/5 p-6 backdrop-blur-sm">
         <div className="flex justify-between">
           <Skeleton className="h-12 w-12 rounded-2xl bg-white/10" />

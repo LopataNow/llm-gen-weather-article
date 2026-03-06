@@ -18,27 +18,26 @@ export class GenWeatherDtoController {
   @ApiOperation({
     summary: 'Returns a cached AI weather forecast for the selected region. Throws if not found.',
   })
-  @ApiResponse({ status: 200, description: 'Succesful retrieval of cached article for today.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Succesful retrieval of cached article for today.',
+  })
   @UsePipes(new ValidationPipe({ transform: true }))
   async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
     const { region = 'slovensko', date = new Date().toISOString().split('T')[0] } = params;
 
     const weatherKey = `sk-v2-${region}-${date}`;
 
-    // 1. Try to find forecast in database (cache)
     const cachedWeather = await this.weatherService.getWeather(weatherKey);
 
     if (cachedWeather) {
       return cachedWeather;
     }
 
-    // 2. If not cached, fetch data from API and generate new report
     const regionName = REGIONS[region]?.name || 'Slovensko';
 
-    // Fetch raw environment data from Open-Meteo
     const weatherData = await this.weatherService.fetchForecastForRegion(region);
 
-    // Generate AI story sections
     const generated = await this.geminiService.generateArticleForRegion(regionName, weatherData);
 
     if (
@@ -69,7 +68,6 @@ export class GenWeatherDtoController {
       weatherCode: (weatherData as any).daily?.weather_code?.[0] || 0,
     };
 
-    // Save into DB mapping the composite key (region+date)
     const response = await this.weatherService.createWeather({
       _id: weatherKey,
       ...generated,

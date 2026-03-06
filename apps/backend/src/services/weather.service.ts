@@ -21,8 +21,7 @@ export class WeatherService {
     return this.weatherModel.findById(id).exec();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async fetchForecastForRegion(regionId: string): Promise<Record<string, any>> {
+  async fetchForecastForRegion(regionId: string): Promise<Record<string, unknown>> {
     const region = REGIONS[regionId];
     if (!region) {
       throw new Error(`Unknown region: ${regionId}`);

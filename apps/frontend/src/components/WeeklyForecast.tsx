@@ -32,7 +32,7 @@ function getWeatherIcon(code: number) {
   return <Cloud className="h-5 w-5 text-gray-400" />;
 }
 
-// Function to format date into SK locale explicitly
+// Helper to format date into SK locale explicitly
 function formatDateSK(dateString: string) {
   const date = new Date(dateString);
   const days = [
@@ -78,8 +78,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
     precipitation_sum,
   } = forecastData.daily;
 
-  // We skip the first day (today) and show the next 6 days
-  const days = time.slice(1, 7).map((t: string, index: number) => ({
+  const daysBeforeToday = time.slice(1, 7).map((t: string, index: number) => ({
     date: t,
     code: weather_code[index + 1],
     maxTemp: Math.round(temperature_2m_max[index + 1]),
@@ -105,7 +104,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {days.map(
+            {daysBeforeToday.map(
               (day: {
                 date: string;
                 code: number;
