@@ -48,14 +48,14 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
       */}
         <motion.div
           variants={itemVariants}
-          className="group relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-black/20 p-5 shadow-2xl backdrop-blur-2xl transition-all hover:bg-black/30 sm:p-8 md:col-span-full md:p-10"
+          className="group relative overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-2xl transition-all hover:bg-white/15 sm:p-8 md:col-span-full md:p-10"
         >
           <div className="pointer-events-none absolute right-0 top-0 p-8 text-white opacity-[0.03]">
             <Sun size={180} strokeWidth={1} />
           </div>
 
           <div className="relative z-10">
-            <h2 className="mb-2 font-serif text-3xl font-extrabold tracking-tight text-white md:text-5xl">
+            <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
               {data.headline}
             </h2>
             <p className="mb-8 max-w-2xl border-b border-white/20 pb-6 text-lg font-medium leading-relaxed text-slate-200">
