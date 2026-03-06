@@ -1,8 +1,10 @@
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { WeatherBento } from "@/components/WeatherBento";
+import { WeatherSkeleton } from "@/components/WeatherSkeleton";
 import { WeeklyForecast } from "@/components/WeeklyForecast";
 
 import { getArticle } from "./calls/weather-article-gen";
@@ -14,6 +16,34 @@ const getArticleCache = unstable_cache(
   ["weather-story-v2"],
   { revalidate: 3600 * 2, tags: ["weather-story-v2"] }, // Cache for 2 hours
 );
+
+// Async Wrapper allowing Suspense to catch the loading state
+async function WeatherContentWrapper({
+  region,
+  dateObj,
+}: {
+  region: string;
+  dateObj: Date;
+}) {
+  let weatherData = null;
+  try {
+    weatherData = await getArticleCache(region, dateObj);
+  } catch (error) {
+    console.error("Failed to fetch weather data:", error);
+  }
+
+  if (!weatherData) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-md">
+        <p className="text-slate-400">
+          Príbeh počasia pre tento deň nebolo možné vygenerovať.
+        </p>
+      </div>
+    );
+  }
+
+  return <WeatherBento data={weatherData} />;
+}
 
 export default async function Home(props: {
   searchParams?: Promise<{
@@ -28,14 +58,6 @@ export default async function Home(props: {
   const todayStr = new Date().toISOString().split("T")[0];
   const isNotToday = dateStr !== todayStr;
 
-  // Handling loading errors gracefully
-  let weatherData = null;
-  try {
-    weatherData = await getArticleCache(region, dateObj);
-  } catch (error) {
-    console.error("Failed to fetch weather data:", error);
-  }
-
   const regions = [
     { id: "slovensko", name: "Slovensko" },
     { id: "zapad", name: "Západ" },
@@ -43,16 +65,8 @@ export default async function Home(props: {
     { id: "vychod", name: "Východ" },
   ];
 
-  // Helper arrays for the "Records" cards
-  const yesterdayStr = new Date(Date.now() - 86400000)
-    .toISOString()
-    .split("T")[0];
-  const dayBeforeYesterdayStr = new Date(Date.now() - 86400000 * 2)
-    .toISOString()
-    .split("T")[0];
-
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 p-4 font-sans text-slate-100 selection:bg-teal-500/30">
+    <main className="relative min-h-screen overflow-hidden p-4 font-sans text-slate-100 selection:bg-teal-500/30">
       {/* Decorative Blur Orbs */}
       <div className="pointer-events-none absolute left-[-10%] top-[-10%] h-96 w-96 rounded-full bg-blue-500/30 opacity-60 mix-blend-screen blur-[100px]"></div>
       <div className="pointer-events-none absolute bottom-[-10%] right-[-10%] h-[30rem] w-[30rem] rounded-full bg-teal-400/20 opacity-60 mix-blend-screen blur-[120px]"></div>
@@ -75,12 +89,12 @@ export default async function Home(props: {
               return (
                 <Link
                   key={r.id}
-                  href={`/? region = ${r.id}${isNotToday ? `&date=${dateStr}` : ""} `}
-                  className={`- xl px - 5 py - 2.5 text - sm font - semibold - all duration - 300 rounded transition ${
+                  href={`/?region=${r.id}${isNotToday ? `&date=${dateStr}` : ""}`}
+                  className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                     isActive
                       ? "bg-white/20 text-white shadow-sm ring-1 ring-white/30"
                       : "text-slate-400 hover:bg-white/10 hover:text-white"
-                  } `}
+                  }`}
                 >
                   {r.name}
                 </Link>
@@ -109,60 +123,34 @@ export default async function Home(props: {
           </div>
         )}
 
-        {/* Content Area */}
-        {weatherData ? (
-          <WeatherBento data={weatherData} />
-        ) : (
-          <div className="flex h-64 items-center justify-center rounded-3xl border border-white/10 bg-white/5 backdrop-blur-md">
-            <p className="text-slate-400">
-              Príbeh počasia pre tento deň nebol vygenerovaný.
-            </p>
-          </div>
-        )}
+        {/* Content Area with Suspense Skeleton */}
+        <Suspense fallback={<WeatherSkeleton />}>
+          <WeatherContentWrapper region={region} dateObj={dateObj} />
+        </Suspense>
 
         {/* Weekly Forecast Table */}
         <WeeklyForecast region={region} />
 
-        {/* History Records Cards */}
+        {/* History Records Simple List */}
         <div className="mt-12">
-          <h3 className="mb-6 flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
-            <CalendarDays className="h-6 w-6 text-indigo-400" />
-            Záznamy článkov
+          <h3 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+            <CalendarDays className="h-5 w-5 text-indigo-400" />
+            Archív predpovedí
           </h3>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Link
-              href={`/?region=${region}&date=${yesterdayStr}`}
-              className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
-            >
-              <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
-                Včera
-              </span>
-              <h4 className="mb-2 text-xl font-bold text-white">
-                {new Date(Date.now() - 86400000).toLocaleDateString("sk-SK")}
-              </h4>
-              <p className="text-sm text-slate-400 group-hover:text-slate-300">
-                Kliknutím otvoríte archívny článok počasia ranných i poobedných
-                reálií pre tento deň.
-              </p>
-            </Link>
-
-            <Link
-              href={`/?region=${region}&date=${dayBeforeYesterdayStr}`}
-              className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/10"
-            >
-              <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-300">
-                Predvčerom
-              </span>
-              <h4 className="mb-2 text-xl font-bold text-white">
-                {new Date(Date.now() - 86400000 * 2).toLocaleDateString(
-                  "sk-SK",
-                )}
-              </h4>
-              <p className="text-sm text-slate-400 group-hover:text-slate-300">
-                Historické AI zhrnutie zo staršieho predvčerajšieho dňa pre Váš
-                región.
-              </p>
-            </Link>
+          <div className="flex flex-wrap gap-3">
+            {[...Array(7)].map((_, i) => {
+              const d = new Date(Date.now() - 86400000 * (i + 1));
+              const dStr = d.toISOString().split("T")[0];
+              return (
+                <Link
+                  key={dStr}
+                  href={`/?region=${region}&date=${dStr}`}
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/20 hover:text-white"
+                >
+                  {d.toLocaleDateString("sk-SK")}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
