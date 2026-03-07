@@ -1,14 +1,13 @@
 import { unstable_cache } from "next/cache";
 import { Suspense } from "react";
 
-import { HistoricalBanner } from "@/components/HistoricalBanner";
-import { HistoryArchiveList } from "@/components/HistoryArchiveList";
-import { RegionNavigation } from "@/components/RegionNavigation";
-import { WeatherBento } from "@/components/WeatherBento";
-import { WeatherSkeleton } from "@/components/WeatherSkeleton";
-import { WeeklyForecast } from "@/components/WeeklyForecast";
-
-import { getArticle } from "./calls/weather-article-gen";
+import { HistoricalBanner } from "@/components/navigation/HistoricalBanner";
+import { HistoryArchiveList } from "@/components/navigation/HistoryArchiveList";
+import { RegionNavigation } from "@/components/navigation/RegionNavigation";
+import { WeatherBento } from "@/components/weather/WeatherBento";
+import { WeatherSkeleton } from "@/components/weather/WeatherSkeleton";
+import { WeeklyForecast } from "@/components/weather/WeeklyForecast";
+import { getArticle } from "@/services/weather.api";
 
 const getArticleCache = unstable_cache(
   async (region: string, date: Date) => {

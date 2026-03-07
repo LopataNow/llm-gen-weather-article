@@ -10,7 +10,7 @@ import {
   Wind,
 } from "lucide-react";
 
-import { WeatherResponse } from "@/app/calls/weather-article-gen";
+import { WeatherResponse } from "@/types/weather";
 
 import { WeatherBackground } from "./WeatherBackground";
 
