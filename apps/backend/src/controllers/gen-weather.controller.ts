@@ -5,6 +5,21 @@ import { GenWeatherDto } from '../dtos/gen-weather.dto';
 import { WeatherPresenter } from '../presenters/weather.presenter';
 import { WeatherService } from '../services/weather.service';
 import { REGIONS } from '../common/regions';
+import { Weather } from '../schemas/weather.schema';
+
+export interface OpenMeteoDailyData {
+  temperature_2m_max?: number[];
+  temperature_2m_min?: number[];
+  precipitation_sum?: number[];
+  wind_speed_10m_max?: number[];
+  wind_direction_10m_dominant?: number[];
+  weather_code?: number[];
+}
+
+export interface OpenMeteoResponse {
+  daily?: OpenMeteoDailyData;
+  [key: string]: any;
+}
 
 @ApiTags('Weather Articles')
 @Controller()
@@ -16,7 +31,7 @@ export class GenWeatherDtoController {
 
   @Get()
   @ApiOperation({
-    summary: 'Returns a cached AI weather forecast for the selected region. Throws if not found.',
+    summary: 'Generates or retrieves a cached AI weather story for specific region and date.',
   })
   @ApiResponse({
     status: 200,
@@ -53,19 +68,13 @@ export class GenWeatherDtoController {
       throw new Error('Failed to generate a valid weather JSON object from Gemini model.');
     }
 
-    const rawData = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tempMax: (weatherData as any).daily?.temperature_2m_max?.[0] || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tempMin: (weatherData as any).daily?.temperature_2m_min?.[0] || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      precipitation: (weatherData as any).daily?.precipitation_sum?.[0] || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      windSpeed: (weatherData as any).daily?.wind_speed_10m_max?.[0] || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      windDir: (weatherData as any).daily?.wind_direction_10m_dominant?.[0] || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      weatherCode: (weatherData as any).daily?.weather_code?.[0] || 0,
+    const rawData: Partial<Weather> = {
+      tempMax: weatherData.daily?.temperature_2m_max?.[0] ?? 0,
+      tempMin: weatherData.daily?.temperature_2m_min?.[0] ?? 0,
+      precipitation: weatherData.daily?.precipitation_sum?.[0] ?? 0,
+      windSpeed: weatherData.daily?.wind_speed_10m_max?.[0] ?? 0,
+      windDir: weatherData.daily?.wind_direction_10m_dominant?.[0] ?? 0,
+      weatherCode: weatherData.daily?.weather_code?.[0] ?? 0,
     };
 
     const response = await this.weatherService.createWeather({

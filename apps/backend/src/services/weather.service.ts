@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Weather } from 'src/schemas/weather.schema';
 import { REGIONS } from '../common/regions';
 import { firstValueFrom } from 'rxjs';
+import { OpenMeteoResponse } from '../controllers/gen-weather.controller';
 
 @Injectable()
 export class WeatherService {
@@ -21,7 +22,7 @@ export class WeatherService {
     return this.weatherModel.findById(id).exec();
   }
 
-  async fetchForecastForRegion(regionId: string): Promise<Record<string, unknown>> {
+  async fetchForecastForRegion(regionId: string): Promise<OpenMeteoResponse> {
     const region = REGIONS[regionId];
     if (!region) {
       throw new Error(`Unknown region: ${regionId}`);

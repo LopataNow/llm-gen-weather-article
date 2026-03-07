@@ -8,6 +8,7 @@ import { RegionNavigation } from "@/components/navigation/RegionNavigation";
 import { WeatherBento } from "@/components/weather/WeatherBento";
 import { WeatherSkeleton } from "@/components/weather/WeatherSkeleton";
 import { WeeklyForecast } from "@/components/weather/WeeklyForecast";
+import { WeeklyForecastSkeleton } from "@/components/weather/WeeklyForecastSkeleton";
 import { getArticle } from "@/services/weather.api";
 
 const getArticleCache = unstable_cache(
@@ -95,7 +96,9 @@ export default async function Home(props: {
         </Suspense>
 
         {/* Weekly Forecast Table */}
-        <WeeklyForecast region={region} />
+        <Suspense fallback={<WeeklyForecastSkeleton />}>
+          <WeeklyForecast region={region} />
+        </Suspense>
 
         {/* History Records Simple List */}
         <HistoryArchiveList region={region} />

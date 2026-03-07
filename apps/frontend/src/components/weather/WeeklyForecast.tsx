@@ -22,7 +22,9 @@ const REGION_COORDS: Record<string, { lat: number; lon: number }> = {
 };
 
 function getWeatherIcon(code: number) {
-  if (code <= 3) return <Sun className="h-5 w-5 text-yellow-500" />;
+  if (code <= 1) return <Sun className="h-5 w-5 text-yellow-500" />;
+  if (code >= 2 && code <= 3)
+    return <Cloud className="h-5 w-5 text-gray-400" />;
   if (code >= 45 && code <= 48)
     return <Cloud className="h-5 w-5 text-gray-400" />;
   if (code >= 51 && code <= 67)
@@ -84,7 +86,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
     precipitation_sum,
   } = forecastData.daily;
 
-  const daysBeforeToday = time.slice(1, 7).map((t: string, index: number) => ({
+  const forecastDays = time.slice(1, 7).map((t: string, index: number) => ({
     date: t,
     code: weather_code[index + 1],
     maxTemp: Math.round(temperature_2m_max[index + 1]),
@@ -110,7 +112,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {daysBeforeToday.map(
+            {forecastDays.map(
               (day: {
                 date: string;
                 code: number;
