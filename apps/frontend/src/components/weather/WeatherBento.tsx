@@ -44,7 +44,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
         {/* MAIN CARD - AI STORY */}
         <motion.div
           variants={itemVariants}
-          className="group relative overflow-hidden rounded-[2.5rem] border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-2xl transition-all hover:bg-white/15 sm:p-8 md:col-span-full md:p-10"
+          className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/10 p-5 shadow-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-md transition-all hover:bg-white/15 sm:p-8 md:col-span-full md:p-10"
         >
           <div className="pointer-events-none absolute right-0 top-0 p-8 text-white opacity-[0.03]">
             <Sun size={180} strokeWidth={1} />
@@ -61,7 +61,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
             <div className="space-y-6">
               <div className="flex flex-col gap-2">
                 <h3 className="flex items-center gap-2 text-xl font-bold text-white">
-                  <Sunrise className="h-5 w-5 text-amber-400" />
+                  <Sunrise className="h-5 w-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
                   Dopoludnia
                 </h3>
                 <p className="text-base leading-relaxed text-slate-200">
@@ -71,7 +71,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
 
               <div className="flex flex-col gap-2">
                 <h3 className="flex items-center gap-2 text-xl font-bold text-white">
-                  <Sunset className="h-5 w-5 text-orange-400" />
+                  <Sunset className="h-5 w-5 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.6)]" />
                   Popoludní a Večer
                 </h3>
                 <p className="text-base leading-relaxed text-slate-200">
@@ -90,11 +90,11 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
 
         <motion.div
           variants={itemVariants}
-          className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10"
+          className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] shadow-xl backdrop-blur-md transition-colors hover:bg-white/10"
         >
           <div className="flex items-start justify-between">
             <div className="rounded-2xl border border-rose-500/30 bg-rose-500/20 p-3">
-              <ThermometerSun className="h-6 w-6 text-rose-400" />
+              <ThermometerSun className="h-6 w-6 text-rose-400 drop-shadow-[0_0_8px_rgba(251,113,133,0.6)]" />
             </div>
             <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">
               Teploty
@@ -105,7 +105,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
               <span className="text-5xl font-black text-white">
                 {data.tempMax !== undefined ? Math.round(data.tempMax) : "--"}°
               </span>
-              <span className="pb-1 text-xl font-medium text-white/50">C</span>
+              <span className="pb-1 text-xl font-medium text-white/60">C</span>
             </div>
             <p className="mt-2 text-sm font-medium text-white/50">
               Minimálna teplota{" "}
@@ -116,11 +116,11 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
 
         <motion.div
           variants={itemVariants}
-          className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10"
+          className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] shadow-xl backdrop-blur-md transition-colors hover:bg-white/10"
         >
           <div className="flex items-start justify-between">
             <div className="rounded-2xl border border-sky-500/30 bg-sky-500/20 p-3">
-              <Wind className="h-6 w-6 text-sky-400" />
+              <Wind className="h-6 w-6 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" />
             </div>
             <span className="text-xs font-semibold uppercase tracking-wider text-sky-400">
               Vietor
@@ -133,7 +133,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
                   ? Math.round(data.windSpeed)
                   : "--"}
               </span>
-              <span className="pb-1 text-lg font-medium text-white/50">
+              <span className="pb-1 text-lg font-medium text-white/60">
                 km/h
               </span>
             </div>
@@ -145,11 +145,11 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
 
         <motion.div
           variants={itemVariants}
-          className="col-span-1 flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl transition-colors hover:bg-white/10 md:col-span-3 lg:col-span-1"
+          className="col-span-1 flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] shadow-xl backdrop-blur-md transition-colors hover:bg-white/10 md:col-span-3 lg:col-span-1"
         >
           <div className="flex items-start justify-between">
             <div className="rounded-2xl border border-blue-500/30 bg-blue-500/20 p-3">
-              <CloudRain className="h-6 w-6 text-blue-400" />
+              <CloudRain className="h-6 w-6 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.6)]" />
             </div>
             <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">
               Zrážky
@@ -160,7 +160,7 @@ export function WeatherBento({ data }: { data: WeatherResponse }) {
               <span className="text-4xl font-black text-white">
                 {data.precipitation !== undefined ? data.precipitation : "--"}
               </span>
-              <span className="pb-1 text-lg font-medium text-white/50">mm</span>
+              <span className="pb-1 text-lg font-medium text-white/60">mm</span>
             </div>
             <p className="mt-3 line-clamp-2 text-sm font-medium text-white/50">
               Denný úhrn zrážok, dáždnikov sa nepusti.

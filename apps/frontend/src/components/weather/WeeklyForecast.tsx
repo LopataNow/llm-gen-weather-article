@@ -6,6 +6,9 @@ import {
   Snowflake,
   Sun,
 } from "lucide-react";
+import { unstable_cache } from "next/cache";
+
+import { getWeeklyForecast } from "@/services/weather.api";
 
 interface WeeklyForecastProps {
   region: string;
@@ -53,18 +56,21 @@ function formatDateSK(dateString: string) {
 export async function WeeklyForecast({ region }: WeeklyForecastProps) {
   const coords = REGION_COORDS[region] || REGION_COORDS.slovensko;
 
-  let forecastData = null;
-  try {
-    const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FBerlin`,
-      { next: { revalidate: 3600 } }, // Cache for 1 hour
-    );
-    if (res.ok) {
-      forecastData = await res.json();
-    }
-  } catch (err) {
-    console.error("Failed to fetch weekly forecast", err);
-  }
+  const getForecastCache = unstable_cache(
+    async (lat: number, lon: number) => {
+      try {
+        const res = await getWeeklyForecast(lat, lon);
+        return res.data;
+      } catch (err) {
+        console.error("Failed to fetch weekly forecast", err);
+        return null;
+      }
+    },
+    [`weekly-forecast-${region}`],
+    { revalidate: 3600, tags: [`weekly-forecast-${region}`] },
+  );
+
+  const forecastData = await getForecastCache(coords.lat, coords.lon);
 
   if (!forecastData || !forecastData.daily) {
     return null;
@@ -87,7 +93,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
   }));
 
   return (
-    <div className="mt-12 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur-xl sm:p-6 md:p-8">
+    <div className="mt-12 overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] shadow-xl backdrop-blur-md sm:p-6 md:p-8">
       <h3 className="mb-4 text-xl font-bold tracking-tight text-white sm:mb-6 sm:text-2xl">
         Predpoveď na ďalšie dni
       </h3>
@@ -128,7 +134,7 @@ export async function WeeklyForecast({ region }: WeeklyForecastProps) {
                     </td>
                     <td className="py-4">
                       <div className="flex items-center gap-3">
-                        <div className="rounded-full bg-white/10 p-2 opacity-80 transition-opacity group-hover:opacity-100">
+                        <div className="rounded-full bg-white/5 p-2 opacity-80 transition-opacity group-hover:opacity-100">
                           {getWeatherIcon(day.code)}
                         </div>
                       </div>

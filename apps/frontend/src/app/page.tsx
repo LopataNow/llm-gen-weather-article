@@ -1,3 +1,4 @@
+import { CloudOff } from "lucide-react";
 import { unstable_cache } from "next/cache";
 import { Suspense } from "react";
 
@@ -34,10 +35,16 @@ async function WeatherContentWrapper({
 
   if (!weatherData) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-md">
-        <p className="text-slate-400">
-          Príbeh počasia pre tento deň nebolo možné vygenerovať.
-        </p>
+      <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-12 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
+        <div className="rounded-full bg-slate-800/50 p-4">
+          <CloudOff className="h-8 w-8 text-slate-400" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-white">Údaje nedostupné</h3>
+          <p className="mt-1 text-slate-400">
+            Príbeh počasia pre tento deň nebolo možné vygenerovať.
+          </p>
+        </div>
       </div>
     );
   }

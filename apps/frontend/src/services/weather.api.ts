@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { WeatherResponse } from "@/types/weather";
+import { OpenMeteoForecastResponse, WeatherResponse } from "@/types/weather";
 
 export function getArticle(region: string, date: Date) {
   const serverUrl = process.env.SERVER_URL || "http://localhost:3001";
@@ -10,4 +10,9 @@ export function getArticle(region: string, date: Date) {
       date: date.toISOString().split("T")[0],
     },
   });
+}
+
+export function getWeeklyForecast(lat: number, lon: number) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FBerlin`;
+  return axios.get<OpenMeteoForecastResponse>(url);
 }

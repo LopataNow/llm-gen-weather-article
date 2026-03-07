@@ -17,3 +17,23 @@ export interface WeatherResponse {
   windDir?: number;
   weatherCode?: number;
 }
+
+export interface OpenMeteoDailyData {
+  time: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
+  precipitation_sum: number[];
+}
+
+export interface OpenMeteoForecastResponse {
+  latitude: number;
+  longitude: number;
+  generationtime_ms: number;
+  utc_offset_seconds: number;
+  timezone: string;
+  timezone_abbreviation: string;
+  elevation: number;
+  daily_units: Record<string, string>;
+  daily: OpenMeteoDailyData;
+}
