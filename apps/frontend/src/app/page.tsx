@@ -12,8 +12,8 @@ import { WeeklyForecastSkeleton } from "@/components/weather/WeeklyForecastSkele
 import { getArticle } from "@/services/weather.api";
 
 const getArticleCache = unstable_cache(
-  async (region: string, date: Date) => {
-    return await getArticle(region, date).then((res) => res.data);
+  async (region: string, dateStr: string) => {
+    return await getArticle(region, dateStr).then((res) => res.data);
   },
   ["weather-story-v2"],
   { revalidate: 3600 * 2, tags: ["weather-story-v2"] }, // Cache for 2 hours
@@ -22,14 +22,14 @@ const getArticleCache = unstable_cache(
 // Async Wrapper allowing Suspense to catch the loading state
 async function WeatherContentWrapper({
   region,
-  dateObj,
+  dateStr,
 }: {
   region: string;
-  dateObj: Date;
+  dateStr: string;
 }) {
   let weatherData = null;
   try {
-    weatherData = await getArticleCache(region, dateObj);
+    weatherData = await getArticleCache(region, dateStr);
   } catch (error) {
     console.error("Failed to fetch weather data:", error);
   }
@@ -92,7 +92,7 @@ export default async function Home(props: {
 
         {/* Content Area with Suspense Skeleton */}
         <Suspense fallback={<WeatherSkeleton />}>
-          <WeatherContentWrapper region={region} dateObj={dateObj} />
+          <WeatherContentWrapper region={region} dateStr={dateStr} />
         </Suspense>
 
         {/* Weekly Forecast Table */}

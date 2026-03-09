@@ -35,7 +35,7 @@ export class GenWeatherDtoController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Succesful retrieval of cached article for today.',
+    description: 'Successful retrieval of cached article for today.',
   })
   @UsePipes(new ValidationPipe({ transform: true }))
   async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
@@ -69,12 +69,12 @@ export class GenWeatherDtoController {
     }
 
     const rawData: Partial<Weather> = {
-      tempMax: weatherData.daily?.temperature_2m_max?.[0] ?? 0,
-      tempMin: weatherData.daily?.temperature_2m_min?.[0] ?? 0,
-      precipitation: weatherData.daily?.precipitation_sum?.[0] ?? 0,
-      windSpeed: weatherData.daily?.wind_speed_10m_max?.[0] ?? 0,
-      windDir: weatherData.daily?.wind_direction_10m_dominant?.[0] ?? 0,
-      weatherCode: weatherData.daily?.weather_code?.[0] ?? 0,
+      tempMax: weatherData.daily?.temperature_2m_max?.[0] ?? null,
+      tempMin: weatherData.daily?.temperature_2m_min?.[0] ?? null,
+      precipitation: weatherData.daily?.precipitation_sum?.[0] ?? null,
+      windSpeed: weatherData.daily?.wind_speed_10m_max?.[0] ?? null,
+      windDir: weatherData.daily?.wind_direction_10m_dominant?.[0] ?? null,
+      weatherCode: weatherData.daily?.weather_code?.[0] ?? null,
     };
 
     const response = await this.weatherService.createWeather({

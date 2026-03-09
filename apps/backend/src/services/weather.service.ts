@@ -33,11 +33,14 @@ export class WeatherService {
       throw new Error('WEATHER_API_URL is missing in environment variables');
     }
 
-    const url = `${baseUrl}&latitude=${region.lat}&longitude=${region.lon}`;
-    this.logger.log(`Fetching weather forecast for ${region.name} from ${url}`);
+    const url = new URL(baseUrl);
+    url.searchParams.set('latitude', String(region.lat));
+    url.searchParams.set('longitude', String(region.lon));
+    const finalUrl = url.toString();
+    this.logger.log(`Fetching weather forecast for ${region.name} from ${finalUrl}`);
 
     try {
-      const { data } = await firstValueFrom(this.httpService.get(url));
+      const { data } = await firstValueFrom(this.httpService.get(finalUrl));
       return data;
     } catch (error) {
       this.logger.error(`Failed to fetch weather data for ${region.name}`, error);
