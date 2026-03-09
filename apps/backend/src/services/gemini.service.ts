@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI, SchemaType, Schema } from '@google/generative-ai';
-import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import { Injectable, Logger } from '@nestjs/common';
 
 const schema: Schema = {
   description: 'Weather article schema',
@@ -16,89 +15,89 @@ const schema: Schema = {
       description: 'A catchy subtitle for the article',
       nullable: false,
     },
-    body: {
-      type: SchemaType.STRING,
-      description: 'The main content of the article',
-      nullable: false,
+    sections: {
+      type: SchemaType.OBJECT,
+      description: 'The weather forecast split into logical sections',
+      properties: {
+        summary: {
+          type: SchemaType.STRING,
+          description: 'A very short 1-sentence summary of the day.',
+          nullable: false,
+        },
+        morning: {
+          type: SchemaType.STRING,
+          description: 'Forecast and advice for the morning and early afternoon.',
+          nullable: false,
+        },
+        afternoon: {
+          type: SchemaType.STRING,
+          description: 'Forecast and advice for the late afternoon and evening.',
+          nullable: false,
+        },
+        tip: {
+          type: SchemaType.STRING,
+          description: 'A catchy advice or warning for the user.',
+          nullable: false,
+        },
+      },
+      required: ['summary', 'morning', 'afternoon', 'tip'],
     },
   },
-  required: ['headline', 'subtitle', 'body'],
+  required: ['headline', 'subtitle', 'sections'],
 };
+
+export interface WeatherArticleSections {
+  summary: string;
+  morning: string;
+  afternoon: string;
+  tip: string;
+}
 
 export interface WeatherArticleResponse {
   headline: string;
   subtitle: string;
-  body: string;
+  sections: WeatherArticleSections;
 }
 
-const prompt = (style: string, language: string, weatherData: string, city: string): string =>
-  `Write an article about the weather in ${city} in the ${style} style. Language: ${language}. Use the following weather data: ${weatherData}.`;
+const generateWeatherPrompt = (
+  regionName: string,
+  weatherData: Record<string, unknown>,
+  targetLanguage: string = 'Slovak',
+): string => {
+  return `
+  Act as a modern and empathetic meteorologist. Your task is to write a short, engaging, and minimalist morning weather report for the region "${regionName}" based on the following data from Open-Meteo.
+  Data retrieved from API: ${JSON.stringify(weatherData)}
+
+  Rules:
+  1. Do not write boring lists or tabular facts. Do not repeat exact numbers unless they are extreme.
+  2. Divide the text into the following sections according to the schema: "summary" (short 1-sentence summary), "morning" (morning and early afternoon outlook), "afternoon" (late afternoon, commuting home from work), and "tip" (a catchy advice or warning at the end).
+  3. Focus on what is most important for a regular person (how to dress, precipitation from the hourly forecast, etc.).
+  4. The output language MUST BE ${targetLanguage}. The tone of the text should be modern and empathetic.
+  5. Return the response exclusively as a valid JSON according to the defined schema!
+`.trim();
+};
 
 @Injectable()
 export class GeminiService {
-  async getWeatherArticle(
-    language: string,
-    style: string,
-    date: string,
-    latitude: number,
-    longitude: number,
-  ): Promise<WeatherArticleResponse> {
-    const city = await this.getCityByCoordinates(latitude, longitude);
-    const weatherData = await this.getWeatherData(date, latitude, longitude);
+  private readonly logger = new Logger(GeminiService.name);
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  async generateArticleForRegion(
+    regionName: string,
+    weatherData: Record<string, unknown>,
+  ): Promise<WeatherArticleResponse> {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: schema,
       },
     });
 
-    const result = await model.generateContent(
-      prompt(style, language, JSON.stringify(weatherData), city),
-    );
+    const finalPrompt = generateWeatherPrompt(regionName, weatherData);
+    this.logger.debug(`Calling Gemini API for region: ${regionName}`);
+
+    const result = await model.generateContent(finalPrompt);
     return JSON.parse(result.response.text()) as WeatherArticleResponse;
-  }
-
-  private async getWeatherData(
-    date: string,
-    latitude: number,
-    longitude: number,
-  ): Promise<Record<string, unknown>> {
-    const result = await axios.get(process.env.WEATHER_API_URL, {
-      params: {
-        latitude: latitude,
-        longitude: longitude,
-        start_date: date,
-        end_date: date,
-      },
-    });
-    return result.data;
-  }
-
-  private async getCityByCoordinates(latitude: number, longitude: number): Promise<string> {
-    try {
-      const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
-        params: {
-          lat: latitude,
-          lon: longitude,
-          format: 'json',
-          'accept-language': 'en',
-        },
-        headers: {
-          'User-Agent': 'llm-gen-weather-article-portfolio',
-        },
-      });
-      return (
-        response.data.address.city ||
-        response.data.address.town ||
-        response.data.address.village ||
-        'Unknown Location'
-      );
-    } catch (error) {
-      console.error('Reverse geocoding failed:', error);
-      return 'Bratislava'; // Fallback
-    }
   }
 }

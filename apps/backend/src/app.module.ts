@@ -8,10 +8,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { Weather, WeatherSchema } from './schemas/weather.schema';
 import { WeatherService } from './services/weather.service';
+import { HttpModule } from '@nestjs/axios';
 import { AllExceptionsFilter } from './filters/http-exception.filter';
 
 @Module({
   imports: [
+    HttpModule,
     LoggerModule.forRoot({
       pinoHttp: {
         transport:

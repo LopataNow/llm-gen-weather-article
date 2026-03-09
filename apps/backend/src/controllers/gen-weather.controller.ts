@@ -4,23 +4,21 @@ import { GeminiService } from '../services/gemini.service';
 import { GenWeatherDto } from '../dtos/gen-weather.dto';
 import { WeatherPresenter } from '../presenters/weather.presenter';
 import { WeatherService } from '../services/weather.service';
+import { REGIONS } from '../common/regions';
+import { Weather } from '../schemas/weather.schema';
 
-interface WeatherKeyParams {
-  latitude: number;
-  longitude: number;
-  style: string;
-  date: string;
-  language: string;
+export interface OpenMeteoDailyData {
+  temperature_2m_max?: number[];
+  temperature_2m_min?: number[];
+  precipitation_sum?: number[];
+  wind_speed_10m_max?: number[];
+  wind_direction_10m_dominant?: number[];
+  weather_code?: number[];
 }
 
-function createWeatherKey({
-  latitude,
-  longitude,
-  style,
-  date,
-  language,
-}: WeatherKeyParams): string {
-  return `${language}-${latitude}-${longitude}-${style}-${date}`;
+export interface OpenMeteoResponse {
+  daily?: OpenMeteoDailyData;
+  [key: string]: any;
 }
 
 @ApiTags('Weather Articles')
@@ -32,46 +30,57 @@ export class GenWeatherDtoController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Generate or retrieve an AI weather article' })
-  @ApiResponse({ status: 200, description: 'Successful generation or retrieval of the article.' })
+  @ApiOperation({
+    summary: 'Generates or retrieves a cached AI weather story for specific region and date.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful retrieval of cached article for today.',
+  })
   @UsePipes(new ValidationPipe({ transform: true }))
   async getWeatherArticle(@Query() params: GenWeatherDto): Promise<WeatherPresenter> {
-    const {
-      language = 'en',
-      style = 'fantastic',
-      date = new Date().toISOString().split('T')[0],
-      latitude = 48.148,
-      longitude = 17.1077,
-    } = params;
+    const { region = 'slovensko', date = new Date().toISOString().split('T')[0] } = params;
 
-    const weather = await this.weatherService.getWeather(
-      createWeatherKey({ latitude, longitude, style, date, language }),
-    );
+    const weatherKey = `sk-v2-${region}-${date}`;
 
-    if (weather) {
-      return weather;
+    const cachedWeather = await this.weatherService.getWeather(weatherKey);
+
+    if (cachedWeather) {
+      return cachedWeather;
     }
 
-    const generated = await this.geminiService.getWeatherArticle(
-      language,
-      style,
-      date,
-      latitude,
-      longitude,
-    );
+    const regionName = REGIONS[region]?.name || 'Slovensko';
+
+    const weatherData = await this.weatherService.fetchForecastForRegion(region);
+
+    const generated = await this.geminiService.generateArticleForRegion(regionName, weatherData);
 
     if (
       !generated ||
       typeof generated?.headline !== 'string' ||
       typeof generated?.subtitle !== 'string' ||
-      typeof generated?.body !== 'string'
+      !generated?.sections ||
+      typeof generated.sections.summary !== 'string' ||
+      typeof generated.sections.morning !== 'string' ||
+      typeof generated.sections.afternoon !== 'string' ||
+      typeof generated.sections.tip !== 'string'
     ) {
-      throw new Error('Unknown error occurred while generating weather article.');
+      throw new Error('Failed to generate a valid weather JSON object from Gemini model.');
     }
 
+    const rawData: Partial<Weather> = {
+      tempMax: weatherData.daily?.temperature_2m_max?.[0] ?? null,
+      tempMin: weatherData.daily?.temperature_2m_min?.[0] ?? null,
+      precipitation: weatherData.daily?.precipitation_sum?.[0] ?? null,
+      windSpeed: weatherData.daily?.wind_speed_10m_max?.[0] ?? null,
+      windDir: weatherData.daily?.wind_direction_10m_dominant?.[0] ?? null,
+      weatherCode: weatherData.daily?.weather_code?.[0] ?? null,
+    };
+
     const response = await this.weatherService.createWeather({
-      _id: createWeatherKey({ latitude, longitude, style, date, language }),
+      _id: weatherKey,
       ...generated,
+      ...rawData,
     });
 
     return response;
