@@ -1,69 +1,82 @@
-name: 'Build and Deploy to Cloud Run'
+name: 'Manual Build, Push to GHCR and Deploy to Cloud Run'
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
   PROJECT_ID: 'github-lab-442719'
   REGION: 'europe-west3'
-  IMAGE_NAME: 'ai-weather-gen-nest'
   SERVICE: 'ai-weather-gen'
+  REGISTRY: 'ghcr.io'
+  # Store image under backend suffix for monorepo structure
+  IMAGE_NAME: ${{ github.repository }}/backend
 
 jobs:
   deploy:
     runs-on: 'ubuntu-latest'
-
-    defaults:
-      run:
-        working-directory: ./apps/backend
-
     permissions:
       contents: 'read'
-      id-token: 'write'
+      packages: 'write' # Required: permission to write to GitHub Packages (GHCR)
 
     steps:
-      - name: 'Checkout'
+      - name: 'Checkout repo'
         uses: 'actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332' # actions/checkout@v4
 
-      # Configure Workload Identity Federation and generate an access token.
-      #
-      # See https://github.com/google-github-actions/auth for more options,
-      # including authenticating via a JSON credentials file.
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2'
+      - name: 'Log in to GitHub Container Registry'
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Build and Push Container to GHCR'
+        run: |
+          # Create tag based on commit SHA
+          IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          LATEST_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+          
+          echo "Building image $IMAGE_URL"
+          
+          # Only tag 'latest' if we are on the main branch
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "Tagging as 'latest' since we are on main branch"
+            docker build --tag "$IMAGE_URL" --tag "$LATEST_URL" -f apps/backend/Dockerfile .
+            echo "Pushing images to GHCR"
+            docker push "$IMAGE_URL"
+            docker push "$LATEST_URL"
+          else
+            docker build --tag "$IMAGE_URL" -f apps/backend/Dockerfile .
+            echo "Pushing image to GHCR"
+            docker push "$IMAGE_URL"
+          fi
+          
+          # Save image URL to env for the deployment step
+          echo "DEPLOY_IMAGE_URL=$IMAGE_URL" >> $GITHUB_ENV
+
+      - name: 'Authenticate to Google Cloud'
+        id: 'auth'
+        uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2' # google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.SA_CREDS }}'
 
-      # BEGIN - Docker auth and build
-      #
-      # If you already have a container image, you can omit these steps.
-      - name: "Docker auth"
-        run: |-
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@618f87169654979e1f3344a1ae007f909ca28ca3' # google-github-actions/setup-gcloud@v2
 
-      - name: 'Build and Push Container'
-        run: |-
-          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          docker build --tag "${DOCKER_TAG}" .
-          docker push "${DOCKER_TAG}"
-
-      - name: Deploy to Google Cloud Run
-        id: deploy
+      - name: 'Deploy to Google Cloud Run'
+        id: 'deploy'
         run: |
+          echo "Deploying $DEPLOY_IMAGE_URL to Cloud Run service ${{ env.SERVICE }} in project ${{ env.PROJECT_ID }}"
+          
           gcloud run deploy ${{ env.SERVICE }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --image $DEPLOY_IMAGE_URL \
+            --project ${{ env.PROJECT_ID }} \
             --platform managed \
             --region ${{ env.REGION }} \
             --allow-unauthenticated
             
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} --project ${{ env.PROJECT_ID }} --region ${{ env.REGION }} --format 'value(status.url)')
           echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
-        # END - Docker auth and build
 
-      - name: 'Show output'
-        run: |2-
-          echo ${{ steps.deploy.outputs.url }}
+      - name: 'Show deployed service URL'
+        run: |
+          echo "Backend is successfully deployed at: ${{ steps.deploy.outputs.url }}"
