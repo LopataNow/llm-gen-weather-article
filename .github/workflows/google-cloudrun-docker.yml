@@ -59,6 +59,9 @@ jobs:
         with:
           credentials_json: '${{ secrets.SA_CREDS }}'
 
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@618f87169654979e1f3344a1ae007f909ca28ca3' # google-github-actions/setup-gcloud@v2
+
       - name: 'Deploy to Google Cloud Run'
         id: 'deploy'
         run: |
