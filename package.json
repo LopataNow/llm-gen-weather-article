@@ -1,0 +1,22 @@
+{
+    "name": "llm-gen-weather-article",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "packageManager": "npm@11.10.1",
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "lint": "turbo run lint",
+        "test": "turbo run test",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "docker:build:backend": "docker build -f apps/backend/Dockerfile -t backend .",
+        "docker:build:frontend": "docker build -f apps/frontend/Dockerfile -t frontend ."
+    },
+    "devDependencies": {
+        "turbo": "latest",
+        "prettier": "^3.8.1"
+    }
+}

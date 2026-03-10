@@ -1,0 +1,14 @@
+name: 'llm-gen-local'
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: llm-gen
+
+volumes:
+  mongo-data:
