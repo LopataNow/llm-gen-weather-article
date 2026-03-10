@@ -1,4 +1,4 @@
-name: 'Build, Push to GHCR and Deploy to Cloud Run'
+name: 'Manual Build, Push to GHCR and Deploy to Cloud Run'
 
 on:
   workflow_dispatch:
@@ -17,7 +17,6 @@ jobs:
     permissions:
       contents: 'read'
       packages: 'write' # Required: permission to write to GitHub Packages (GHCR)
-      id-token: 'write'
 
     steps:
       - name: 'Checkout repo'
@@ -34,38 +33,45 @@ jobs:
         run: |
           # Create tag based on commit SHA
           IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          # Include latest tag for better visibility
           LATEST_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           
-          # Build from root (.) for monorepo context, but use backend Dockerfile
           echo "Building image $IMAGE_URL"
-          docker build --tag "$IMAGE_URL" --tag "$LATEST_URL" -f apps/backend/Dockerfile .
           
-          echo "Pushing images to GHCR"
-          docker push "$IMAGE_URL"
-          docker push "$LATEST_URL"
+          # Only tag 'latest' if we are on the main branch
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "Tagging as 'latest' since we are on main branch"
+            docker build --tag "$IMAGE_URL" --tag "$LATEST_URL" -f apps/backend/Dockerfile .
+            echo "Pushing images to GHCR"
+            docker push "$IMAGE_URL"
+            docker push "$LATEST_URL"
+          else
+            docker build --tag "$IMAGE_URL" -f apps/backend/Dockerfile .
+            echo "Pushing image to GHCR"
+            docker push "$IMAGE_URL"
+          fi
           
           # Save image URL to env for the deployment step
           echo "DEPLOY_IMAGE_URL=$IMAGE_URL" >> $GITHUB_ENV
 
       - name: 'Authenticate to Google Cloud'
         id: 'auth'
-        uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.SA_CREDS }}'
 
       - name: 'Deploy to Google Cloud Run'
         id: 'deploy'
         run: |
-          echo "Deploying $DEPLOY_IMAGE_URL to Cloud Run service ${{ env.SERVICE }}"
+          echo "Deploying $DEPLOY_IMAGE_URL to Cloud Run service ${{ env.SERVICE }} in project ${{ env.PROJECT_ID }}"
           
           gcloud run deploy ${{ env.SERVICE }} \
             --image $DEPLOY_IMAGE_URL \
+            --project ${{ env.PROJECT_ID }} \
             --platform managed \
             --region ${{ env.REGION }} \
             --allow-unauthenticated
             
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format 'value(status.url)')
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} --project ${{ env.PROJECT_ID }} --region ${{ env.REGION }} --format 'value(status.url)')
           echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
 
       - name: 'Show deployed service URL'
