@@ -18,7 +18,7 @@ export interface OpenMeteoDailyData {
 
 export interface OpenMeteoResponse {
   daily?: OpenMeteoDailyData;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 @ApiTags('Weather Articles')
